@@ -8,7 +8,7 @@ Yibin Wang\*, Haizhou Shi\*, Ligong Han, Dimitris Metaxas, Hao Wang<br>
 **Important Note**: 
 > This repository is currently in its initial development stage. It contains the foundational code required to replicate the in-distribution experiments (Table 1 in the paper).
 
-> The complete version of this repository, including the implementation of LAP baseline and additional extensions, is scheduled to be uploaded by October 30, 2024.
+> The complete version of this repository, including the implementation of LAP baseline and additional extensions, is scheduled to be uploaded by November 30, 2024.
 
 ## To Run the Code
 To install the required conda environment, run:
