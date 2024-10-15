@@ -23,8 +23,8 @@ Before you run the code, there are a couple of settings you might want to modify
 
 The following command in the terminal could reproduce the basic results of in-distribution experiment: 
 ```sh
-bash cmd/blob/blob-llama-all.sh
-bash cmd/blob/blob-roberta-all.sh
+bash scripts/blob/blob-llama-all.sh
+bash scripts/blob/blob-roberta-all.sh
 ```
 
 > Note: The number of GPUs used for parallel training, the type of GPUs, and the model quantization settings can result in slight differences in the final performance.
