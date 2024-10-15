@@ -1,7 +1,14 @@
 # Bayesian PEFT
-Code for the paper [BLoB: Bayesian Low-Rank Adaptation by Backpropagation for Large Language Models](https://arxiv.org/abs/2406.11675).
+This repo contains the code for our NeurIPS 2024 paper:<br>
+**BLoB: Bayesian Low-Rank Adaptation by Backpropagation for Large Language Models**<br>
+Yibin Wang\*, Haizhou Shi\*, Ligong Han, Dimitris Metaxas, Hao Wang<br>
+*Thirty-eighth Conference on Neural Information Processing Systems, 2024*<br>
+[[Paper](https://arxiv.org/abs/2406.11675)] [OpenReview] [Talk] [Slides] [Poster]
 
-> We have now provided the code for in-distribution experiments (excluding Laplace). The implementation of Laplace, along with the code for out-of-distribution experiments, is expected to be uploaded by Oct 30.
+**Important Note**: 
+> This repository is currently in its initial development stage. It contains the foundational code required to replicate the in-distribution experiments (Table 1 in the paper).
+
+> The complete version of this repository, including the implementation of LAP baseline and additional extensions, is scheduled to be uploaded by October 30, 2024.
 
 ## To Run the Code
 To install the required conda environment, run:
@@ -11,6 +18,9 @@ conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvi
 pip install transformers datasets evaluate accelerate bitsandbytes jaxtyping torchmetrics setproctitle ipdb peft wandb nltk scikit-learn
 ```  
 
+Before you run the code, there are a couple of settings you might want to modify: 
+- `wandb_entity`: at `utils/args.py` line 139, change to your own wandb account;
+
 The following command in the terminal could reproduce the basic results of in-distribution experiment: 
 ```sh
 bash cmd/blob/blob-llama-all.sh
@@ -18,17 +28,3 @@ bash cmd/blob/blob-roberta-all.sh
 ```
 
 > Note: The number of GPUs used for parallel training, the type of GPUs, and the model quantization settings can result in slight differences in the final performance.
-
-## Code Structure
-- `dataset/`: each file is an independent dataset.
-    - `utils/`: utility files/functions for data manipulation.
-        - `datasetbase.py`: the base class for the Dataset object
-        - `dsets.py`: hacked from https://github.com/MaximeRobeyns/bayesian_lora/blob/master/examples/utils/dsets.py, support a series of sequence to sequence dataset
-    - `S2ClassDataset.py`: Sequence to class dataset, for the bert-like models
-    - `S2SDataset_Classification.py`: multichoice QA dataset, for the gpt-like models
-- `modelwrappers/`: 
-    - `wrapperbase.py`: the base class for the wrapper object, where it defines the basic requirements to be met for a new modelwrapper definition. 
-- `utils/`: folders containing shared utility functions among modules or for the main procudure in `main.py`. **Before you run the code, you need create your own `Weight & Bias` account and put your user name at line 139 in the file `args.py`. **
-- `main/`: folders containing training and evaluation pipelines. 
-- `checkpoints/`: not shown in this repo, where by default the checkpoints and logs of the models are stored. 
-- `wandb/`: not shown in this repo, where the local logs of the wandb will be stored.

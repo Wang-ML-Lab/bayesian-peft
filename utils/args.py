@@ -136,7 +136,7 @@ def add_management_args(parser: ArgumentParser) -> None:
     
     # Arguments Weght & Bias logging tool.
     parser.add_argument('--nowand', action='store_true', help='Inhibit wandb logging')
-    parser.add_argument('--wandb-entity', type=str, default='flylee', help='Wandb entity')
+    parser.add_argument('--wandb-entity', type=str, default='<your_wandb_account>', help='Wandb entity')
     parser.add_argument('--wandb-project', type=str, default='Bayes LoRA', help='Wandb project name')
     parser.add_argument('--wandb-name', type=str, default='', help="Wandb run's name")
 
