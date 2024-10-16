@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from typing import Any, List, Optional, Union
 import math
 from tqdm import tqdm
-import logging
 
 from .wrapperbase import WrapperBase, get_linear_schedule_with_warmup
 from utils.args import add_management_args, add_experiment_args, ArgumentParser
@@ -34,7 +33,6 @@ def get_parser() -> ArgumentParser:
     parser.add_argument('--bayes-gamma', type=float, default=8)
     parser.add_argument('--bayes-kllr', type=float, default=0.02)
     parser.add_argument('--bayes-beta', type=float, default=0.2)
-    parser.add_argument('--bayes-final-beta', type=float, default=0.18)
     parser.add_argument('--bayes-inference-notsample', action='store_true',
                         help='Whether to sample during inference.')
     parser.add_argument('--bayes-klreweighting', action='store_true',
@@ -284,31 +282,7 @@ class BLoB(WrapperBase):
                 child.sample(status)
             else:
                 self.sample(child, status)
-                
-    def change_rho(self, module, rho = 0.42):
-        for name, child in module.named_children():
-            if isinstance(child, LoraLayer):
-                with torch.no_grad():  
-                    child.lora_A_rho['default'].fill_(rho)
-            else:
-                self.change_rho(child, rho)
-        return
-    
-    def rho_dif(self, module):
-        std = 0
-        dif = 0
-        for name, child in module.named_children():
-            if isinstance(child, LoraLayer):
-                with torch.no_grad():  
-                    dif += child.lora_A_rho['default'].max()**2-child.lora_A_rho['default'].min()**2
-                    std += child.lora_A_rho['default']**2
-                    self.dif_count += 1
-            else:
-                dif_, std_ = self.rho_dif(child)
-                dif += dif_
-                std += std_
-        return dif, std
-                
+                           
     def forward_logits(self, batch, sample=True, n_samples=1, **kwargs) -> torch.Tensor:
         if self.args.dataset_type == 'mcdataset':
             inputs, _, _ = batch
@@ -344,16 +318,6 @@ class BLoB(WrapperBase):
         accs = AverageMeter()   
         samples_seen = 0
         with tqdm(total=len(train_loader), desc=f"Epoch {self.args.epoch+1}/{self.args.n_epochs}", leave=False) as pbar:
-            self.dif_count = 0
-            dif, std = self.rho_dif(self.base_model) 
-            dif = dif /self.dif_count
-            std = std /self.dif_count
-            if self.accelerator.is_local_main_process:
-                if self.wandb_logger is not None:
-                    self.wandb_logger.log({
-                            'dif': dif,
-                            'std': std
-                        })
             for i, batch in enumerate(train_loader): 
                 if self.args.dataset_type == 'mcdataset':
                     _, golds, _ = batch
@@ -531,44 +495,3 @@ class BLoB(WrapperBase):
             self.M = len(train_loader)
         
         print("M:", self.M)
-        
-        
-    def fit_evaluate(self):
-        if self.accelerator.is_local_main_process:
-            save_folder = f'checkpoints/{self.args.modelwrapper}/{self.args.model}/{self.args.dataset}/{self.args.log_path}'
-            create_if_not_exists(save_folder)
-            logging.basicConfig(format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s', level=logging.INFO, filename=save_folder+'/log.txt')
-        with tqdm(total=self.args.n_epochs, desc=f"Total Training Epochs", leave=True) as pbar:
-            for epoch in range(self.args.n_epochs): 
-                if self.args.early_stop_steps > 0 and epoch >= self.earlystop_n_epochs:
-                    break
-                self.args.epoch = epoch
-                self.fit(self.train_loader, self.test_loader)
-                pbar.update(1)
-        
-        if hasattr(self.args, 'bayes_eval_n_samples_final'):
-            self.eval_n_samples = self.args.bayes_eval_n_samples_final
-            
-        val_acc, val_ece, val_nll, val_brier = self.evaluate(self.test_loader)
-        logging.info(f'val_acc: {val_acc}, val_ece: {val_ece}, val_nll: {val_nll}, val_brier: {val_brier}')
-        if self.accelerator.is_local_main_process:
-            if self.wandb_logger is not None:
-                self.wandb_logger.log({
-                    'final_val_acc': val_acc,
-                    'final_val_ece': val_ece,
-                    'final_val_nll': val_nll,
-                    'final_val_brier': val_brier,
-                                    })
-
-        self.change_rho(self.base_model, rho = np.sqrt(self.args.bayes_final_beta))
-
-        val_acc, val_ece, val_nll, val_brier = self.evaluate(self.test_loader)
-        logging.info(f'val_acc: {val_acc}, val_ece: {val_ece}, val_nll: {val_nll}, val_brier: {val_brier}')
-        if self.accelerator.is_local_main_process:
-            if self.wandb_logger is not None:
-                self.wandb_logger.log({
-                    'final_val_acc': val_acc,
-                    'final_val_ece': val_ece,
-                    'final_val_nll': val_nll,
-                    'final_val_brier': val_brier,
-                                    })
