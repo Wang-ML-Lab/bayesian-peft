@@ -1,4 +1,4 @@
-modelwrapper=deepensemble
+modelwrapper=mle
 model=roberta-base
 
 for dataset in rte mrpc wic cola boolq
@@ -12,11 +12,10 @@ do
     --opt adamw --warmup-ratio 0.06 \
     --max-seq-len 256 \
     --seed $seed \
-    --wandb-name $name  --wandb-project "ENS-roberta-all"  \
+    --wandb-name $name  --wandb-project "MLE-roberta-all"  \
     --apply-classhead-lora --lora-r 8 --lora-alpha 8 --lora-dropout 0 \
     --log-path $name \
     --max-train-steps 5000 \
-    --eval-per-steps 6000 \
-    --ensemble-n 3 
+    --eval-per-steps 6000 
 done
 done

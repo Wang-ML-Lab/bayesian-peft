@@ -1,9 +1,9 @@
 modelwrapper=deepensemble
 model=meta-llama/Llama-2-7b-hf
 
-for dataset in winogrande_s
+for dataset in winogrande_s ARC-Challenge ARC-Easy winogrande_m obqa boolq
 do
-for seed in 1
+for seed in 1 2 3
 do 
     name=$modelwrapper-$dataset-seed$seed
     python -m accelerate.commands.launch --num_processes=2 --gpu_ids="0,1" --main_process_port=40000 run/main.py --dataset-type mcdataset --dataset $dataset \
@@ -17,7 +17,6 @@ do
     --log-path $name \
     --max-train-steps 5000 \
     --eval-per-steps 6000 \
-    --load-model-path /data/local/public_llms/llamas/Llama-2-7b-hf \
     --ensemble-n 3 
 done
 done

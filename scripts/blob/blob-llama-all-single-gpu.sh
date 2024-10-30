@@ -20,7 +20,6 @@ do
     --seed $seed \
     --evaluate \
     --wandb-name $name  --wandb-project "BLoB-llama-all"  \
-    --load-model-path /data/local/public_llms/llamas/Llama-2-7b-hf \
     --apply-classhead-lora --lora-r 8 --lora-alpha 16 --lora-dropout 0 \
     --log-path $name \
     --max-train-steps 5000 \

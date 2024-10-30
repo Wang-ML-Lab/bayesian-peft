@@ -19,7 +19,7 @@ do
     --max-seq-len 256 \
     --seed $seed \
     --wandb-name $name  --wandb-project "BLoB-roberta-all"  \
-    --apply-classhead-lora --lora-r 8 --lora-alpha 16 --lora-dropout 0 \
+    --apply-classhead-lora --lora-r 8 --lora-alpha 8 --lora-dropout 0 \
     --log-path $name \
     --max-train-steps 5000 \
     --eval-per-steps 6000 \
