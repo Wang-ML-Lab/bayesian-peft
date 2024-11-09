@@ -21,9 +21,10 @@ pip install transformers datasets evaluate accelerate bitsandbytes jaxtyping tor
 Before you run the code, there are a couple of settings you might want to modify: 
 - `wandb_entity`: at `utils/args.py` line 139, change to your own wandb account;
 
-The following command in the terminal could reproduce the basic results of in-distribution experiment: 
+The following command in the terminal could reproduce the basic results of in-distribution and out-of-distribution experiment: 
 ```sh
 bash scripts/blob/blob-llama-all.sh
+bash scripts/blob/blob-llama-ood-all.sh
 bash scripts/blob/blob-roberta-all.sh
 ```
 

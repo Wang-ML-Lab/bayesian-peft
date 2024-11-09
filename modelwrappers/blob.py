@@ -198,8 +198,8 @@ class BLoB(WrapperBase):
         
         self.blobconfig = BLoBConfig(bayes_eps = self.args.bayes_eps, bayes_gamma = self.args.bayes_gamma, bayes_beta = self.args.bayes_beta)
         self._modify_lora_layers(self.base_model)
-        if args.load_checkpoint:
-            self.load_adapter(args.load_path, adapter_name)
+        if args.load_lora_path is not None:
+            self.load_adapter(args.load_lora_path, adapter_name)
         
         self.i = 1 # for the KL re-weighting.
         self.ii = 1
@@ -472,7 +472,7 @@ class BLoB(WrapperBase):
             
         l_train = len(train_loader)
         
-        num_update_steps_per_epoch = math.ceil(len(train_loader) / self.args.gradient_accumulation_steps)
+        num_update_steps_per_epoch = len(train_loader)
         if self.args.max_train_steps == 0:
             self.args.max_train_steps = self.args.n_epochs * num_update_steps_per_epoch
         self.args.n_epochs = math.ceil(self.args.max_train_steps / num_update_steps_per_epoch) if self.args.ood_ori_dataset is None else 0

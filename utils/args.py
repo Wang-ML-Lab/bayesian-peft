@@ -18,7 +18,7 @@ def add_experiment_args(parser: ArgumentParser) -> None:
                         help='Which dataset to perform training on.')
     parser.add_argument('--max-seq-len', type=int, default=512)
     parser.add_argument('--modelwrapper', type=str, required=True,
-                        help='Model name, one of the following: MLE, MAP, Deep Ensemble, Batch Ensemble, Laplace LoRA, BLoB LoRA')
+                        help='Model name, one of the following: MLE, MAP, Deep Ensemble, Batch Ensemble, BLoB LoRA')
     parser.add_argument('--model', type=str, required=True,
                         help='Backbone type, one of the following: roberta-base, roberta-large')
     parser.add_argument('--model-type', type=str, required=True,
@@ -75,8 +75,7 @@ def add_experiment_args(parser: ArgumentParser) -> None:
     parser.add_argument('--num-bins', type=int, default=15,
                         help='num of bins in ECE computation.')
     parser.add_argument('--load-model-path', type=str, default=None)
-    parser.add_argument('--load-checkpoint', action='store_true',
-                        help='Whether to load checkpoint.')
+    parser.add_argument('--load-lora-path', type=str, default=None)
     parser.add_argument('--log-path', type=str, default='default')
     parser.add_argument('--lm-head', action='store_true')
     parser.add_argument("--testing_set", type=str, default='val')
@@ -90,27 +89,6 @@ def add_experiment_args(parser: ArgumentParser) -> None:
                         help='Whether to apply lora on the classhead of model.')
     parser.add_argument('--apply-qkv-head-lora', action='store_true',
                         help= 'Whether to apply lora on the qkv and lm_head of model.')
-    
-    # laplace_LoRA arguments
-    parser.add_argument('--laplace-train', action='store_true',
-                        help='Whether to apply laplace.')
-    parser.add_argument("--laplace_sub", type=str, default='all', help='all or last_layer')
-    parser.add_argument("--laplace_n_kfac", type=int, default=10, help='The rank used for the large Kronecker factors')
-    parser.add_argument("--laplace_lr_threshold", type=int, default=100, help='The Kronecker factor edge size over which to use the low-rank approximation')
-    parser.add_argument("--laplace_prior_var", type=float, default=1.0, help='Initial prior variance (before marginal likelihood-based optimisation)')
-    parser.add_argument(
-        "--gradient-accumulation-steps",
-        type=int,
-        default=1,
-        help="Number of updates steps to accumulate before performing a backward/update pass.",
-    )
-    parser.add_argument("--laplace_hessian", type=str, default='kron')
-    parser.add_argument("--laplace_prior", type=str, default='homo', help='homo, hetero')
-    parser.add_argument("--laplace_optim_step", type=int, default=1000)
-    parser.add_argument("--laplace_predict", type=str, default='mc_corr_100000', help='probit bridge bridge_norm mc_indep mc_corr')
-
-    parser.add_argument('--laplace-vis', action='store_true',
-                        help='Whether to apply laplace.')
 
 
 def add_management_args(parser: ArgumentParser) -> None:
@@ -131,7 +109,7 @@ def add_management_args(parser: ArgumentParser) -> None:
                         help='percentage of the validation data.')
     parser.add_argument('--checkpoint', action='store_true',
                         help='Whether checkpoint the model backbone parameters.')
-    parser.add_argument('--checkpoint-dic-name', type=str, default='default',
+    parser.add_argument('--checkpoint-name', type=str, default='default',
                         help= 'The name of the dictionary to save the checkpoint.')
     
     # Arguments Weght & Bias logging tool.

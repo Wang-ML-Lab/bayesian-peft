@@ -8,7 +8,6 @@ from ipdb import iex
 project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_path)
 sys.path.append(project_path + '/datasets')
-sys.path.append(project_path + '/backbones')
 sys.path.append(project_path + '/models')
 sys.path.append(project_path + '/main')
 
@@ -21,10 +20,6 @@ import torch
 from utils.args import add_management_args, add_experiment_args
 from utils import create_if_not_exists
 # from utils.continual_training import train as ctrain
-from run.ood_eval import ood_eval
-from run.laplace_train import laplace_train_old
-from run.laplace_ood_eval import laplace_ood_eval
-from run.laplace_ood_vis import laplace_ood_vis
 from run import *
 
 from accelerate.utils import set_seed
@@ -79,16 +74,6 @@ def main(args=None):
 
     accelerator = Accelerator()
 
-    ood_ori_dataset = None
-    if args.ood_ori_dataset is not None:
-        dataset = args.dataset
-        args.dataset = args.ood_ori_dataset
-        ood_ori_dataset = get_dataset(args.dataset_type, accelerator, args)
-        ood_ori_dataset.get_loaders()
-        args.ood_ori_outdim = ood_ori_dataset.num_labels # should be careful to use in evaluate_all
-        args.ood_ori_num_samples = ood_ori_dataset.num_samples
-        args.dataset = dataset
-
     dataset = get_dataset(args.dataset_type, accelerator, args)
     dataset.get_loaders()
     args.outdim = dataset.num_labels 
@@ -101,44 +86,34 @@ def main(args=None):
     setproctitle.setproctitle('{}_{}_BLoB-lora'.format(args.model, args.dataset))
 
     # train the model
-    if args.laplace_vis:
-        laplace_ood_vis(model, dataset, accelerator, args, ood_ori_dataset)
-    if args.ood_ori_dataset is not None and args.laplace_train:
-        laplace_ood_eval(model, dataset, accelerator, args, ood_ori_dataset)
-    elif args.laplace_train:
-        laplace_train_old(model, dataset, accelerator, args)
-    # elif args.atk:
-    #     atk(model, dataset, accelerator, args)
-    elif args.ood_ori_dataset is not None:
-        ood_eval(model, dataset, accelerator, args, ood_ori_dataset)
-    else:
-        wandb_logger = None
-        if accelerator.is_local_main_process:
-            print(args)
-            if not args.nowand:
-                assert wandb is not None, "Wandb not installed, please install it or run without wandb"
-                if not args.wandb_name:
-                    wandb_logger = wandb.init(project=args.wandb_project, entity=args.wandb_entity, config=vars(args))
-                else:
-                    wandb_logger = wandb.init(project=args.wandb_project, entity=args.wandb_entity, name=args.wandb_name, config=vars(args))
-            print(file=sys.stderr)
-        
-        model.model.prepare_for_fit_evaluate(dataset, wandb_logger)
-        model.model.fit_evaluate()
-        
-        # checkpointing the backbone model.
-        if args.checkpoint: # by default the checkpoints folder is checkpoints
-            accelerator.wait_for_everyone()
-            if accelerator.is_main_process:
-                save_folder = f'checkpoints/{args.modelwrapper}/{args.model}/{args.dataset}/{args.checkpoint_dic_name}'
-                create_if_not_exists(save_folder)
-                model.model.base_model = accelerator.unwrap_model(model.model.base_model)
-                model.model.save_pretrained(save_folder, save_function=accelerator.save)
-                print('Model saved to:', save_folder)
-
+    
+    wandb_logger = None
+    if accelerator.is_local_main_process:
+        print(args)
         if not args.nowand:
-            if accelerator.is_local_main_process:
-                wandb_logger.finish()
+            assert wandb is not None, "Wandb not installed, please install it or run without wandb"
+            if not args.wandb_name:
+                wandb_logger = wandb.init(project=args.wandb_project, entity=args.wandb_entity, config=vars(args))
+            else:
+                wandb_logger = wandb.init(project=args.wandb_project, entity=args.wandb_entity, name=args.wandb_name, config=vars(args))
+        print(file=sys.stderr)
+    
+    model.model.prepare_for_fit_evaluate(dataset, wandb_logger)
+    model.model.fit_evaluate()
+    
+    # checkpointing the backbone model.
+    if args.checkpoint: # by default the checkpoints folder is checkpoints
+        accelerator.wait_for_everyone()
+        if accelerator.is_main_process:
+            save_folder = f'checkpoints/{args.modelwrapper}/{args.model}/{args.dataset}/{args.checkpoint_name}'
+            create_if_not_exists(save_folder)
+            model.model.base_model = accelerator.unwrap_model(model.model.base_model)
+            model.model.save_pretrained(save_folder, save_function=accelerator.save)
+            print('Model saved to:', save_folder)
+
+    if not args.nowand:
+        if accelerator.is_local_main_process:
+            wandb_logger.finish()
 
 
 if __name__ == '__main__':

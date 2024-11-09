@@ -11,18 +11,20 @@ import torch
 from torch.optim import SGD, Adam, AdamW
 from torch.optim.lr_scheduler import LambdaLR
 from torch.nn import functional as F
+from torchmetrics import Accuracy, CalibrationError
     
 from transformers import PreTrainedModel
 from peft import PeftModel
 from peft.config import PeftConfig
 
-from run.evaluation import *
+from utils import create_if_not_exists
 
 optimizer_dict = {
     'sgd': SGD,
     'adam': Adam,
     'adamw': AdamW,
 }
+
 
 
 def get_linear_schedule_with_warmup(optimizer, num_warmup_steps, num_training_steps, last_epoch=-1):
@@ -41,6 +43,38 @@ def get_linear_schedule_with_warmup(optimizer, num_warmup_steps, num_training_st
         )
 
     return LambdaLR(optimizer, lr_lambda, last_epoch)
+
+
+def accuracy_topk(output, target, k=1):
+    """Computes the topk accuracy"""
+    batch_size = target.size(0)
+
+    _, pred = torch.topk(output, k=k, dim=1, largest=True, sorted=True)
+
+    res_total = 0
+    for curr_k in range(k):
+      curr_ind = pred[:,curr_k]
+      num_eq = torch.eq(curr_ind, target).sum()
+      acc = num_eq/len(output)
+      res_total += acc
+    return res_total*100
+
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
 
 
 class WrapperBase(PeftModel):
@@ -95,8 +129,59 @@ class WrapperBase(PeftModel):
     def forward_logits(self, *args, **kwargs) -> torch.Tensor:
         raise NotImplementedError("Forward not implemented.")
     
-    def fit(self, *args, **kwargs):
-        raise NotImplementedError("Forward not implemented.")
+    def fit(self, train_loader, eval_loader):
+        nll_losses = AverageMeter()
+        accs = AverageMeter()   
+        samples_seen = 0
+        with tqdm(total=len(train_loader), desc=f"Epoch {self.args.epoch+1}/{self.args.n_epochs}", leave=False) as pbar:
+            for i, batch in enumerate(train_loader): 
+                if self.args.dataset_type == 'mcdataset':
+                    _, golds, _ = batch
+                elif self.args.dataset_type == 'bertds':
+                    golds = batch['labels']
+                else:
+                    raise NotImplementedError(f"Dataset type {self.args.dataset_type} not implemented.")
+                logits = self.forward_logits(batch).mean(1)
+                output = torch.log_softmax(logits, dim=1)
+                nll = self.loss(output, golds, reduction='mean')
+
+                self.accelerator.backward(nll)
+                self.opt.step()
+                self.opt.zero_grad()
+                self.scheduler.step()
+
+                acc = accuracy_topk(output.data, golds)
+                acc, nll_loss = acc.item(), nll.detach().cpu().numpy()
+
+                if self.args.dataset_type == 'mcdataset':
+                    _, classes, _ = batch
+                    references = self.accelerator.gather(classes)
+                else:
+                    references = self.accelerator.gather(batch["labels"])
+                if self.accelerator.num_processes > 1:
+                    if i == len(train_loader) - 1:
+                        references = references[: len(train_loader.dataset) - samples_seen]
+                    else:
+                        samples_seen += references.shape[0]
+                len_batch = references.shape[0]
+                nll_losses.update(nll_loss, len_batch)
+                accs.update(acc, len_batch)
+                
+                assert not math.isnan(nll_loss)
+                if self.accelerator.is_local_main_process:
+                    if self.wandb_logger is not None:
+                        self.wandb_logger.log({
+                                'train_acc': accs.avg, 
+                                'train_nll_loss': nll_losses.avg, 
+                                'lr': self.opt.param_groups[0]['lr'],
+                            })
+                
+                self.step += self.accelerator.num_processes
+                pbar.update(1)
+                if self.step >= self.args.eval_per_steps:
+                    self.step -= self.args.eval_per_steps
+                    self.evaluate(eval_loader)
+
     
     def evaluate(self, eval_loader):
         self.eval()
@@ -204,9 +289,9 @@ class WrapperBase(PeftModel):
         num_update_steps_per_epoch = math.ceil(len(train_loader) / self.args.gradient_accumulation_steps)
         if self.args.max_train_steps == 0:
             self.args.max_train_steps = self.args.n_epochs * num_update_steps_per_epoch
-        self.args.n_epochs = math.ceil(self.args.max_train_steps / num_update_steps_per_epoch) if self.args.ood_ori_dataset is None else 0
+        self.args.n_epochs = math.ceil(self.args.max_train_steps / num_update_steps_per_epoch) 
         if self.args.early_stop_steps > 0:
-            self.earlystop_n_epochs = math.ceil(self.args.early_stop_steps / num_update_steps_per_epoch) if self.args.ood_ori_dataset is None else 0
+            self.earlystop_n_epochs = math.ceil(self.args.early_stop_steps / num_update_steps_per_epoch) 
         else:
             self.earlystop_n_epochs = 0
         if self.accelerator.is_local_main_process:
