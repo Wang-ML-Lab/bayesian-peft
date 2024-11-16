@@ -3,7 +3,7 @@ This repo contains the code for our NeurIPS 2024 paper:<br>
 **BLoB: Bayesian Low-Rank Adaptation by Backpropagation for Large Language Models**<br>
 Yibin Wang\*, Haizhou Shi\*, Ligong Han, Dimitris Metaxas, Hao Wang<br>
 *Thirty-eighth Conference on Neural Information Processing Systems, 2024*<br>
-[[Paper](https://arxiv.org/abs/2406.11675)] [[OpenReview](https://openreview.net/forum?id=MaDykgj4Ru)] [Talk] [Slides] [Poster]
+[[Paper](https://arxiv.org/abs/2406.11675)] [[OpenReview](https://openreview.net/forum?id=MaDykgj4Ru)] [Talk] [[Slides](https://nips.cc/media/neurips-2024/Slides/95507.pdf)] [[Poster](https://nips.cc/media/PosterPDFs/NeurIPS%202024/95507.png)]
 
 **Important Note**: 
 > This repository is currently in its initial development stage. It contains the foundational code required to replicate the in-distribution experiments (Table 1 in the paper).
