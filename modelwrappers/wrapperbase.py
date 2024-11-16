@@ -286,7 +286,7 @@ class WrapperBase(PeftModel):
             self.tokenizer = dataset.tokenizer
             self.target_ids = dataset.target_ids.squeeze(-1)
         
-        num_update_steps_per_epoch = math.ceil(len(train_loader) / self.args.gradient_accumulation_steps)
+        num_update_steps_per_epoch = math.ceil(len(train_loader))
         if self.args.max_train_steps == 0:
             self.args.max_train_steps = self.args.n_epochs * num_update_steps_per_epoch
         self.args.n_epochs = math.ceil(self.args.max_train_steps / num_update_steps_per_epoch) 
