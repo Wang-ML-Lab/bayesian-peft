@@ -9,9 +9,10 @@ from run.evaluation import *
 from transformers import PreTrainedModel
 from peft.config import PeftConfig
 
+
 ## Model Specific Argument Parsing
 def get_parser() -> ArgumentParser:
-    parser = ArgumentParser(description='standard training, MLE')
+    parser = ArgumentParser(description="standard training, MLE")
     add_management_args(parser)
     add_experiment_args(parser)
 
@@ -20,13 +21,21 @@ def get_parser() -> ArgumentParser:
 
 class MLE(WrapperBase):
     """MLE model."""
-    def __init__(self, model: PreTrainedModel, peft_config: PeftConfig, args, accelerator, adapter_name: str = "default"):
+
+    def __init__(
+        self,
+        model: PreTrainedModel,
+        peft_config: PeftConfig,
+        args,
+        accelerator,
+        adapter_name: str = "default",
+    ):
         super().__init__(model, peft_config, args, accelerator, adapter_name)
         if args.load_lora_path is not None:
             self.load_adapter(args.load_lora_path, adapter_name)
-        
+
     def forward_logits(self, batch, sample=True, n_samples=1, **kwargs) -> torch.Tensor:
-        if self.args.dataset_type == 'mcdataset':
+        if self.args.dataset_type == "mcdataset":
             inputs, _, _ = batch
             output = self.base_model(**inputs)
             logits = output.logits[:, -1, self.target_ids]
@@ -34,5 +43,3 @@ class MLE(WrapperBase):
         else:
             res = self.base_model(**batch.logits)
             return res.unsqueeze(1)
-    
-    

@@ -10,9 +10,7 @@ checkpoints/
 wandb
 *.csv
 *.pkl
-pretrained_gpt_checkpoints/
 tmp/
-log-ood-detection-laplace/
-log-ood-detection/
 */__pycache__
 *.pyc
+utils/cal.py

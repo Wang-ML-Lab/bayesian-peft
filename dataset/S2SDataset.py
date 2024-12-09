@@ -16,18 +16,21 @@ class S2SDataset(DatasetBase):
 
         if args.evaluate:
             self.tokenizer = AutoTokenizer.from_pretrained(
-            args.model, trust_remote_code=True, padding_side="left"
-        )
+                args.model, trust_remote_code=True, padding_side="left"
+            )
         else:
             self.tokenizer = AutoTokenizer.from_pretrained(
-            args.model, trust_remote_code=True, padding_side="right"
-        )
+                args.model, trust_remote_code=True, padding_side="right"
+            )
         self.tokenizer.pad_token = self.tokenizer.eos_token
 
         dset_class: dsets.ClassificationDataset = getattr(dsets, args.dataset)
         print(self.args.multi_answer)
         self.dset = dset_class(
-            self.tokenizer, add_space=args.add_space, max_seq_len=args.max_seq_len, multianswer=self.args.multi_answer,
+            self.tokenizer,
+            add_space=args.add_space,
+            max_seq_len=args.max_seq_len,
+            multianswer=self.args.multi_answer,
         )
 
     def get_loaders(self):
@@ -39,7 +42,6 @@ class S2SDataset(DatasetBase):
             print("=====================================")
             print(f"Loading {self.args.dataset} dataset.")
             print("=====================================")
-
 
         self.train_dataloader = self.dset.loader(
             batch_size=self.args.batch_size,  # training batch size
@@ -56,7 +58,7 @@ class S2SDataset(DatasetBase):
             print(
                 f"Loaded {self.args.dataset} training dataset. Total samples: {self.num_samples}"
             )
-            
+
         if self.args.testing_set == "val":
             self.test_dataloader = self.dset.loader(
                 batch_size=self.args.batch_size,  # training batch size

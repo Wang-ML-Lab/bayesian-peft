@@ -17,29 +17,37 @@ def create_if_not_exists(path: str) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
 
+
 def valid_loss(f):
     """
     Decorator function that prevents training to nan loss value.
     """
+
     def decorated_f(*args, **kwargs):
         loss = f(*args, **kwargs)
         if torch.isnan(loss):
             ipdb.set_trace()
             loss = f(*args, **kwargs)
         return loss
+
     return decorated_f
+
 
 def timer(func):
     """
     Decorator function that prints the execution time of the decorated function.
     """
+
     def wrapper(*args, **kwargs):
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()
         execution_time = end_time - start_time
-        print(f"Function '{func.__name__}' took {execution_time:.6f} seconds to execute.")
+        print(
+            f"Function '{func.__name__}' took {execution_time:.6f} seconds to execute."
+        )
         return result
+
     return wrapper
 
 

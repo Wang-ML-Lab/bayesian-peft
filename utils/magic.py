@@ -11,7 +11,7 @@ class persistent_locals:
 
     def __call__(self, *args, **kwargs):
         def tracer(frame, event, arg):
-            if event == 'return':
+            if event == "return":
                 self._locals = frame.f_locals.copy()
 
         # tracer is activated on next call, return or exception

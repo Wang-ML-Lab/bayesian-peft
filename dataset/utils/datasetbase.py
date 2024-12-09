@@ -3,6 +3,7 @@
 
 from argparse import Namespace
 
+
 class DatasetBase:
     NAME: str
     NUM_SAMPLES: int
@@ -16,9 +17,9 @@ class DatasetBase:
             args: the arguments of the current execution
         """
         pass
-        
+
     def get_loaders(self):
         """
         Get the loaders for training and testing.
         """
-        raise NotImplementedError('get_loaders not implemented.')
+        raise NotImplementedError("get_loaders not implemented.")

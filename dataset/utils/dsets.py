@@ -14,7 +14,7 @@
 """
 Convenience wrappers around classification datasets
 """
-import string 
+import string
 import re
 import torch as t
 import pandas as pd
@@ -145,7 +145,13 @@ class ClassificationDataset:
             return self.clm_loader(dset, *args, **kwargs)
 
     def _tokenize_prompts(self, prompts):
-        prompts = self.tokenizer(prompts, padding=True, truncation=True, return_tensors="pt", max_length=self.max_seq_len)
+        prompts = self.tokenizer(
+            prompts,
+            padding=True,
+            truncation=True,
+            return_tensors="pt",
+            max_length=self.max_seq_len,
+        )
         return prompts
 
 
@@ -163,7 +169,14 @@ Passage: {passage}
 Question: {question}
 Answer (true or false):"""
         super().__init__(
-            dset, tokenizer, 2, prompt, add_space, numerical=False, boolean=True, max_seq_len = max_seq_len
+            dset,
+            tokenizer,
+            2,
+            prompt,
+            add_space,
+            numerical=False,
+            boolean=True,
+            max_seq_len=max_seq_len,
         )
 
     def clm_collate_fn(self, batch):
@@ -192,11 +205,23 @@ boolq = BoolQDataset
 
 class OBQADataset(ClassificationDataset):
     def __init__(
-        self, tokenizer: AutoTokenizer, add_space: bool = True, few_shot: bool = False, max_seq_len:int = 512
+        self,
+        tokenizer: AutoTokenizer,
+        add_space: bool = True,
+        few_shot: bool = False,
+        max_seq_len: int = 512,
     ):
         dset = load_dataset("openbookqa", "main")
         prompt = self.few_shot_preamble if few_shot else self.zero_shot_preamble
-        super().__init__(dset, tokenizer, 4, prompt, add_space, numerical=False, max_seq_len = max_seq_len)
+        super().__init__(
+            dset,
+            tokenizer,
+            4,
+            prompt,
+            add_space,
+            numerical=False,
+            max_seq_len=max_seq_len,
+        )
 
     few_shot_preamble = """Return the abel of the correct answer for each question below.
 
@@ -275,7 +300,15 @@ class ARCDataset(ClassificationDataset):
     ):
         dset = load_dataset("ai2_arc", name)
         prompt = self.few_shot_preamble if few_shot else self.zero_shot_preamble
-        super().__init__(dset, tokenizer, 5, prompt, add_space, numerical=False, max_seq_len = max_seq_len)
+        super().__init__(
+            dset,
+            tokenizer,
+            5,
+            prompt,
+            add_space,
+            numerical=False,
+            max_seq_len=max_seq_len,
+        )
 
     few_shot_preamble = """Return the label of the correct answer for each question below.
 
@@ -355,11 +388,19 @@ class WinograndeDataset(ClassificationDataset):
         name: WinograndeSplit = WinograndeSplit.S,
         add_space: bool = True,
         few_shot: bool = False,
-        max_seq_len: int = 512
+        max_seq_len: int = 512,
     ):
         dset = load_dataset("winogrande", name, trust_remote_code=True)
         prompt = self.few_shot_preamble if few_shot else self.zero_shot_preamble
-        super().__init__(dset, tokenizer, 2, prompt, add_space, numerical=False, max_seq_len = max_seq_len)
+        super().__init__(
+            dset,
+            tokenizer,
+            2,
+            prompt,
+            add_space,
+            numerical=False,
+            max_seq_len=max_seq_len,
+        )
 
     few_shot_preamble = """Return the label of the correct answer for each question below.
 
@@ -415,7 +456,11 @@ winogrande = WinograndeDataset
 
 class CommonsenseQADataset(ClassificationDataset):
     def __init__(
-        self, tokenizer: AutoTokenizer, add_space: bool = True, few_shot: bool = True, max_seq_len:int = 512,
+        self,
+        tokenizer: AutoTokenizer,
+        add_space: bool = True,
+        few_shot: bool = True,
+        max_seq_len: int = 512,
     ):
         dset = load_dataset("commonsense_qa")
         super().__init__(
@@ -425,7 +470,7 @@ class CommonsenseQADataset(ClassificationDataset):
             self.few_shot_preamble if few_shot else self.zero_shot_preamble,
             add_space,
             numerical=False,
-            max_seq_len = max_seq_len
+            max_seq_len=max_seq_len,
         )
 
     # few-shot preamble
@@ -507,13 +552,12 @@ cqa = CommonsenseQADataset
 
 class CoLADataset(ClassificationDataset):
     def __init__(
-        self,
-        tokenizer: AutoTokenizer,
-        add_space: bool = True,
-        max_seq_len: int = 512
+        self, tokenizer: AutoTokenizer, add_space: bool = True, max_seq_len: int = 512
     ):
         dset = load_dataset("glue", "cola")
-        super().__init__(dset, tokenizer, 2, self.preamble, add_space, max_seq_len = max_seq_len)
+        super().__init__(
+            dset, tokenizer, 2, self.preamble, add_space, max_seq_len=max_seq_len
+        )
 
     preamble = """For each sentence below, indicate whether it is grammatically acceptable (1) or unacceptable (0).
 
@@ -552,7 +596,9 @@ class MNLIDataset(ClassificationDataset):
         max_seq_len: int = 512,
     ):
         dset = load_dataset("glue", "mnli")
-        super().__init__(dset, tokenizer, 3, self.preamble, add_space, max_seq_len = max_seq_len)
+        super().__init__(
+            dset, tokenizer, 3, self.preamble, add_space, max_seq_len=max_seq_len
+        )
 
     preamble = """For each premise below, indicate whether the hypothesis entails (0), is neutral towards (1) or contradicts (2) the premise.
 
@@ -601,7 +647,9 @@ class MRPCDataset(ClassificationDataset):
         max_seq_len: int = 512,
     ):
         dset = load_dataset("glue", "mrpc")
-        super().__init__(dset, tokenizer, 2, self.preamble, add_space, max_seq_len = max_seq_len)
+        super().__init__(
+            dset, tokenizer, 2, self.preamble, add_space, max_seq_len=max_seq_len
+        )
 
     preamble = """For each pair of sentences below, indicate whether the Sentence 1 is equivalent (1) or not equivalent (2) to the Sentence 2.
 
@@ -646,7 +694,9 @@ class QNLIDataset(ClassificationDataset):
         max_seq_len: int = 512,
     ):
         dset = load_dataset("glue", "qnli")
-        super().__init__(dset, tokenizer, 2, self.preamble, add_space, max_seq_len = max_seq_len)
+        super().__init__(
+            dset, tokenizer, 2, self.preamble, add_space, max_seq_len=max_seq_len
+        )
 
     preamble = """For each sentence below, indicate whether it entails (0) or does not entail (1) the associated question.
 
@@ -688,10 +738,12 @@ class QQPDataset(ClassificationDataset):
         self,
         tokenizer: AutoTokenizer,
         add_space: bool = True,
-        max_seq_len:int = 512,
+        max_seq_len: int = 512,
     ):
         dset = load_dataset("glue", "qqp")
-        super().__init__(dset, tokenizer, 2, self.preamble, add_space, max_seq_len = max_seq_len)
+        super().__init__(
+            dset, tokenizer, 2, self.preamble, add_space, max_seq_len=max_seq_len
+        )
 
     preamble = """For each pair of questions below, indicate whether the first is a duplicate (1) or not a duplicate (0) of the first.
 
@@ -730,13 +782,12 @@ qqp = QQPDataset
 
 class RTEDataset(ClassificationDataset):
     def __init__(
-        self,
-        tokenizer: AutoTokenizer,
-        add_space: bool = True,
-        max_seq_len: int = 512
+        self, tokenizer: AutoTokenizer, add_space: bool = True, max_seq_len: int = 512
     ):
         dset = load_dataset("glue", "rte")
-        super().__init__(dset, tokenizer, 2, self.preamble, add_space, max_seq_len = max_seq_len)
+        super().__init__(
+            dset, tokenizer, 2, self.preamble, add_space, max_seq_len=max_seq_len
+        )
 
     preamble = """For each pair of sentences below, indicate whether the second entails (0) or does not entail (1) the first.
 
@@ -775,13 +826,12 @@ rte = RTEDataset
 
 class SST2Dataset(ClassificationDataset):
     def __init__(
-        self,
-        tokenizer: AutoTokenizer,
-        add_space: bool = True,
-        max_seq_len: int = 512
+        self, tokenizer: AutoTokenizer, add_space: bool = True, max_seq_len: int = 512
     ):
         dset = load_dataset("glue", "sst2")
-        super().__init__(dset, tokenizer, 2, self.preamble, add_space, max_seq_len = max_seq_len)
+        super().__init__(
+            dset, tokenizer, 2, self.preamble, add_space, max_seq_len=max_seq_len
+        )
 
     preamble = """For each sentence below, indicate whether the sentiment is negative (0) or positive (1).
 
@@ -814,13 +864,12 @@ sst2 = SST2Dataset
 
 class WNLIDataset(ClassificationDataset):
     def __init__(
-        self,
-        tokenizer: AutoTokenizer,
-        add_space: bool = True,
-        max_seq_len: int = 512
+        self, tokenizer: AutoTokenizer, add_space: bool = True, max_seq_len: int = 512
     ):
         dset = load_dataset("glue", "wnli")
-        super().__init__(dset, tokenizer, 2, self.preamble, add_space, max_seq_len = max_seq_len)
+        super().__init__(
+            dset, tokenizer, 2, self.preamble, add_space, max_seq_len=max_seq_len
+        )
 
     preamble = """For each pair of sentences below, indicate whether the second entails (1) or does not entail (0) the first.
 
@@ -857,14 +906,27 @@ Answer:"""
 wnli = WNLIDataset
 
 MMLUSplit = {
-    "cs": ["college_computer_science", "high_school_computer_science", "computer_security", "machine_learning"],
+    "cs": [
+        "college_computer_science",
+        "high_school_computer_science",
+        "computer_security",
+        "machine_learning",
+    ],
     # "cs" : ["abstract_algebra"],
-    "eng" : ["electrical_engineering"],
-    "law" : ["international_law", "jurisprudence", "professional_law"],
-    "health" : ["anatomy", "clinical_knowledge", "college_medicine", "human_aging", "nutrition", "professional_medicine", "virology"],
-    "chem" : ["college_chemistry"],
-    "bio" : ['college_biology'],
-    "phy" : ['college_physics'],
+    "eng": ["electrical_engineering"],
+    "law": ["international_law", "jurisprudence", "professional_law"],
+    "health": [
+        "anatomy",
+        "clinical_knowledge",
+        "college_medicine",
+        "human_aging",
+        "nutrition",
+        "professional_medicine",
+        "virology",
+    ],
+    "chem": ["college_chemistry"],
+    "bio": ["college_biology"],
+    "phy": ["college_physics"],
 }
 
 
@@ -875,19 +937,26 @@ class MMLUDataset(ClassificationDataset):
         name: str = "cs",
         add_space: bool = True,
         few_shot: bool = False,
-        max_seq_len: int = 512
+        max_seq_len: int = 512,
     ):
 
         dset = load_dataset("cais/mmlu", "all")
         self.name = name
 
         df = pd.DataFrame(dset["test"])
-        filtered_df = df[df['subject'].isin(MMLUSplit[name])]
+        filtered_df = df[df["subject"].isin(MMLUSplit[name])]
         dset = datasets.Dataset.from_pandas(filtered_df)
-        
 
         prompt = self.few_shot_preamble if few_shot else self.zero_shot_preamble
-        super().__init__(dset, tokenizer, 4, prompt, add_space, numerical=False, max_seq_len = max_seq_len)
+        super().__init__(
+            dset,
+            tokenizer,
+            4,
+            prompt,
+            add_space,
+            numerical=False,
+            max_seq_len=max_seq_len,
+        )
 
     few_shot_preamble = """Return the label of the correct answer for each question below.
 
@@ -920,10 +989,7 @@ Answer:"""
         for e in batch:
             # choices = "\n".join(e["choices"])
             choices = "\n".join(
-                [
-                    f"{l}) {c}"
-                    for l, c, in zip(["A", "B", "C", "D"], e["choices"])
-                ]
+                [f"{l}) {c}" for l, c, in zip(["A", "B", "C", "D"], e["choices"])]
             )
             prompts.append(
                 self.preamble.format(question=e["question"], choices=choices)
@@ -966,7 +1032,9 @@ Answer:"""
         else:
             return self.clm_loader(dset, *args, **kwargs)
 
+
 mmlu = MMLUDataset
+
 
 class LMDataset:
     """
@@ -1029,29 +1097,36 @@ class LMDataset:
             dset = self.dset[split].select(range(subset_size))
         else:
             dset = self.dset[split]
-        if split == 'train':
+        if split == "train":
             return self.s2s_trainloader(dset, *args, **kwargs)
         else:
             return self.s2s_loader(dset, *args, **kwargs)
 
     def _tokenize_prompts_batch(self, prompts):
-        prompts = self.tokenizer(prompts, padding=True, return_tensors="pt", truncation=True, max_length=self.max_seq_len)
+        prompts = self.tokenizer(
+            prompts,
+            padding=True,
+            return_tensors="pt",
+            truncation=True,
+            max_length=self.max_seq_len,
+        )
         return prompts
-    
+
     def _tokenize_prompts(self, prompts):
         prompts = self.tokenizer(prompts, return_tensors="pt")
         return prompts
 
+
 def normalize_answer(s):
     def remove_articles(text):
-        return re.sub(r'\b(a|an|the)\b', ' ', text)
+        return re.sub(r"\b(a|an|the)\b", " ", text)
 
     def white_space_fix(text):
-        return ' '.join(text.split())
+        return " ".join(text.split())
 
     def remove_punc(text):
         exclude = set(string.punctuation)
-        return ''.join(ch for ch in text if ch not in exclude)
+        return "".join(ch for ch in text if ch not in exclude)
 
     def lower(text):
         return text.lower()
@@ -1066,63 +1141,76 @@ class TriviaQADataset(LMDataset):
         add_space: bool = True,
         n_shot: int = 0,
         max_seq_len: int = 512,
-        multianswer: bool = False
+        multianswer: bool = False,
     ):
 
         dset = load_dataset("mandarjoshi/trivia_qa", "rc.nocontext")
         self.n_shot = n_shot
-        
-        super().__init__(dset, tokenizer, add_space, max_seq_len = max_seq_len)
+
+        super().__init__(dset, tokenizer, add_space, max_seq_len=max_seq_len)
 
     zero_shot_preamble = """Answer the question below. Question: {question} Answer:"""
-    sample_preamble = """Answer the question below. Question: {question} Answer: {answer}"""
+    sample_preamble = (
+        """Answer the question below. Question: {question} Answer: {answer}"""
+    )
     qa_preamble = """Question: {question} Answer:"""
-    
+
     def _select_few_shot_samples(self, dset, n):
         indices = list(range(len(dset)))
         random.shuffle(indices)
         selected_indices = indices[:n]
-        sampled_questions = [dset['question'][i] for i in selected_indices]
-        sampled_answers = [normalize_answer(dset['answer'][i]['value']) for i in selected_indices]
-        self.few_shot_samples = {'question': sampled_questions, 'answer': sampled_answers}
-    
+        sampled_questions = [dset["question"][i] for i in selected_indices]
+        sampled_answers = [
+            normalize_answer(dset["answer"][i]["value"]) for i in selected_indices
+        ]
+        self.few_shot_samples = {
+            "question": sampled_questions,
+            "answer": sampled_answers,
+        }
+
     def _generate_n_shot_preamble(self):
         example_str = ""
         for i in range(self.n_shot):
             example_str += f"Example: Question: {self.few_shot_samples['question'][i]} Answer: {normalize_answer(self.few_shot_samples['answer'][i])}. "
 
-        return example_str+"""Now, answer the question below. """
+        return example_str + """Now, answer the question below. """
 
     def _format_prompts(self, batch):
         prompts = []
         for e in batch:
             if self.n_shot > 0:
-                self._select_few_shot_samples(self.dset['train'][:100], self.n_shot)
+                self._select_few_shot_samples(self.dset["train"][:100], self.n_shot)
                 prompt = self._generate_n_shot_preamble()
-                prompts.append(
-                    prompt + self.qa_preamble.format(question=e["question"])
-                )
+                prompts.append(prompt + self.qa_preamble.format(question=e["question"]))
             else:
                 prompt = self.zero_shot_preamble
-                prompts.append(
-                    prompt.format(question=e["question"])
-                )
-        
+                prompts.append(prompt.format(question=e["question"]))
+
         return prompts
-    
+
     def _format_samples(self, batch):
         prompts = []
         for e in batch:
             prompts.append(
-                self.sample_preamble.format(question=e["question"], answer=normalize_answer(e["answer"]["value"]))
+                self.sample_preamble.format(
+                    question=e["question"],
+                    answer=normalize_answer(e["answer"]["value"]),
+                )
             )
         return prompts
 
     def s2s_collate_fn(self, batch):
         prompts = self._format_prompts(batch)
         prompts = self._tokenize_prompts_batch(prompts)
-        targets = self._tokenize_prompts_batch([normalize_answer(e["answer"]["value"]) for e in batch])
-        targets_aliases = [self._tokenize_prompts_batch([normalize_answer(a) for a in e["answer"]["aliases"]]) for e in batch]
+        targets = self._tokenize_prompts_batch(
+            [normalize_answer(e["answer"]["value"]) for e in batch]
+        )
+        targets_aliases = [
+            self._tokenize_prompts_batch(
+                [normalize_answer(a) for a in e["answer"]["aliases"]]
+            )
+            for e in batch
+        ]
         return prompts, targets, targets_aliases
 
     # def s2s_train_collate_fn(self, batch):
@@ -1147,20 +1235,23 @@ class TriviaQADataset(LMDataset):
     #         # Set all tokens up to and including the position of "Answer: " to pad_token
     #         if pos != -1:
     #             tokenized_targets['input_ids'][i][:pos] = ignore_index.repeat(pos)
-        
+
     #     return tokenized_prompts, tokenized_targets
-    
+
     def s2s_train_collate_fn_ori(self, batch):
         prompts = self._format_samples(batch)
         tokenized_prompts = self._tokenize_prompts_batch(prompts)
         tokenized_targets = tokenized_prompts.copy()
-        
+
         return tokenized_prompts, tokenized_targets
+
 
 TriviaQA = TriviaQADataset
 
 
 from datasets import concatenate_datasets
+
+
 class AmbigQADataset(LMDataset):
     def __init__(
         self,
@@ -1168,81 +1259,93 @@ class AmbigQADataset(LMDataset):
         add_space: bool = True,
         n_shot: int = 0,
         max_seq_len: int = 512,
-        multianswer: bool = True
+        multianswer: bool = True,
     ):
         dset = load_dataset("sewon/ambig_qa", "full")
         self.n_shot = n_shot
-        
-        super().__init__(dset, tokenizer, add_space, max_seq_len = max_seq_len)
-        
+
+        super().__init__(dset, tokenizer, add_space, max_seq_len=max_seq_len)
+
         if multianswer:
-        
-            filtered_gt_1 = dset['validation'].filter(lambda example: len(example['nq_answer']) > 1)
-            filtered_eq_1 = dset['validation'].filter(lambda example: len(example['nq_answer']) == 1)
+
+            filtered_gt_1 = dset["validation"].filter(
+                lambda example: len(example["nq_answer"]) > 1
+            )
+            filtered_eq_1 = dset["validation"].filter(
+                lambda example: len(example["nq_answer"]) == 1
+            )
             filtered_eq_1 = filtered_eq_1.select(range(200))
-            dset['validation'] = concatenate_datasets([filtered_gt_1, filtered_eq_1])
+            dset["validation"] = concatenate_datasets([filtered_gt_1, filtered_eq_1])
 
     zero_shot_preamble = """Answer the question below. Question: {question} Answer:"""
-    sample_preamble = """Answer the question below. Question: {question} Answer: {answer}"""
+    sample_preamble = (
+        """Answer the question below. Question: {question} Answer: {answer}"""
+    )
     qa_preamble = """Question: {question} Answer:"""
-    
+
     def _select_few_shot_samples(self, dset, n):
         indices = list(range(len(dset)))
         random.shuffle(indices)
         selected_indices = indices[:n]
-        sampled_questions = [dset['question'][i] for i in selected_indices]
-        sampled_answers = [normalize_answer(dset['nq_answer'][i]) for i in selected_indices]
-        self.few_shot_samples = {'question': sampled_questions, 'answer': sampled_answers}
-    
+        sampled_questions = [dset["question"][i] for i in selected_indices]
+        sampled_answers = [
+            normalize_answer(dset["nq_answer"][i]) for i in selected_indices
+        ]
+        self.few_shot_samples = {
+            "question": sampled_questions,
+            "answer": sampled_answers,
+        }
+
     def _generate_n_shot_preamble(self):
         example_str = ""
         for i in range(self.n_shot):
             example_str += f"Example: Question: {self.few_shot_samples['question'][i]} Answer: {normalize_answer(self.few_shot_samples['nq_answer'][i])}. "
 
-        return example_str+"""Now, answer the question below. """
+        return example_str + """Now, answer the question below. """
 
     def _format_prompts(self, batch):
         prompts = []
         for e in batch:
             if self.n_shot > 0:
-                self._select_few_shot_samples(self.dset['train'][:100], self.n_shot)
+                self._select_few_shot_samples(self.dset["train"][:100], self.n_shot)
                 prompt = self._generate_n_shot_preamble()
-                prompts.append(
-                    prompt + self.qa_preamble.format(question=e["question"])
-                )
+                prompts.append(prompt + self.qa_preamble.format(question=e["question"]))
             else:
                 prompt = self.zero_shot_preamble
-                prompts.append(
-                    prompt.format(question=e["question"])
-                )
-        
+                prompts.append(prompt.format(question=e["question"]))
+
         return prompts
-    
+
     def _format_samples(self, batch):
         prompts = []
         for e in batch:
             prompts.append(
-                self.sample_preamble.format(question=e["question"], answer=normalize_answer(e["nq_answer"][0]))
+                self.sample_preamble.format(
+                    question=e["question"], answer=normalize_answer(e["nq_answer"][0])
+                )
             )
         return prompts
 
     def s2s_collate_fn(self, batch):
         prompts = self._format_prompts(batch)
         prompts = self._tokenize_prompts_batch(prompts)
-        targets_aliases = [self._tokenize_prompts_batch([normalize_answer(a) for a in e["nq_answer"]]) for e in batch]
+        targets_aliases = [
+            self._tokenize_prompts_batch([normalize_answer(a) for a in e["nq_answer"]])
+            for e in batch
+        ]
         return prompts, None, targets_aliases
-    
+
     def s2s_train_collate_fn_ori(self, batch):
         prompts = self._format_samples(batch)
         tokenized_prompts = self._tokenize_prompts_batch(prompts)
         tokenized_targets = tokenized_prompts.copy()
-        
+
         return tokenized_prompts, tokenized_targets
+
 
 AmbigQA = AmbigQADataset
 
 
-    
 class OpenARCDataset(LMDataset):
     def __init__(
         self,
@@ -1250,75 +1353,92 @@ class OpenARCDataset(LMDataset):
         add_space: bool = True,
         n_shot: int = 0,
         max_seq_len: int = 512,
-        multianswer: bool = True
+        multianswer: bool = True,
     ):
         dset = load_dataset("ai2_arc", "ARC-Easy")
         self.n_shot = n_shot
-        
-        super().__init__(dset, tokenizer, add_space, max_seq_len = max_seq_len)
-        
+
+        super().__init__(dset, tokenizer, add_space, max_seq_len=max_seq_len)
 
     zero_shot_preamble = """Answer the question below. Question: {question} Answer:"""
-    sample_preamble = """Answer the question below. Question: {question} Answer: {answer}"""
+    sample_preamble = (
+        """Answer the question below. Question: {question} Answer: {answer}"""
+    )
     qa_preamble = """Question: {question} Answer:"""
-    
+
     def generate_answer_from_choices(self, choices, answer_key):
-        index = choices['label'].index(answer_key)
-        return choices['text'][index]
-        
-    
+        index = choices["label"].index(answer_key)
+        return choices["text"][index]
+
     def _select_few_shot_samples(self, dset, n):
         indices = list(range(len(dset)))
         random.shuffle(indices)
         selected_indices = indices[:n]
-        sampled_questions = [dset['question'][i] for i in selected_indices]
-        sampled_answers = [normalize_answer(dset['nq_answer'][i]) for i in selected_indices]
-        self.few_shot_samples = {'question': sampled_questions, 'answer': sampled_answers}
-    
+        sampled_questions = [dset["question"][i] for i in selected_indices]
+        sampled_answers = [
+            normalize_answer(dset["nq_answer"][i]) for i in selected_indices
+        ]
+        self.few_shot_samples = {
+            "question": sampled_questions,
+            "answer": sampled_answers,
+        }
+
     def _generate_n_shot_preamble(self):
         example_str = ""
         for i in range(self.n_shot):
             example_str += f"Example: Question: {self.few_shot_samples['question'][i]} Answer: {normalize_answer(self.few_shot_samples['nq_answer'][i])}. "
 
-        return example_str+"""Now, answer the question below. """
+        return example_str + """Now, answer the question below. """
 
     def _format_prompts(self, batch):
         prompts = []
         for e in batch:
             if self.n_shot > 0:
-                self._select_few_shot_samples(self.dset['train'][:100], self.n_shot)
+                self._select_few_shot_samples(self.dset["train"][:100], self.n_shot)
                 prompt = self._generate_n_shot_preamble()
-                prompts.append(
-                    prompt + self.qa_preamble.format(question=e["question"])
-                )
+                prompts.append(prompt + self.qa_preamble.format(question=e["question"]))
             else:
                 prompt = self.zero_shot_preamble
-                prompts.append(
-                    prompt.format(question=e["question"])
-                )
-        
+                prompts.append(prompt.format(question=e["question"]))
+
         return prompts
-    
+
     def _format_samples(self, batch):
         prompts = []
         for e in batch:
             prompts.append(
-                self.sample_preamble.format(question=e["question"], answer=normalize_answer(self.generate_answer_from_choices(e["choices"], e["answerKey"])))
+                self.sample_preamble.format(
+                    question=e["question"],
+                    answer=normalize_answer(
+                        self.generate_answer_from_choices(e["choices"], e["answerKey"])
+                    ),
+                )
             )
         return prompts
 
     def s2s_collate_fn(self, batch):
         prompts = self._format_prompts(batch)
         prompts = self._tokenize_prompts_batch(prompts)
-        targets = [self._tokenize_prompts_batch([normalize_answer(self.generate_answer_from_choices(a["choices"], a["answerKey"])) for a in [e]]) for e in batch]
+        targets = [
+            self._tokenize_prompts_batch(
+                [
+                    normalize_answer(
+                        self.generate_answer_from_choices(a["choices"], a["answerKey"])
+                    )
+                    for a in [e]
+                ]
+            )
+            for e in batch
+        ]
         return prompts, None, targets
-    
+
     def s2s_train_collate_fn_ori(self, batch):
         prompts = self._format_samples(batch)
         tokenized_prompts = self._tokenize_prompts_batch(prompts)
         tokenized_targets = tokenized_prompts.copy()
-        
+
         return tokenized_prompts, tokenized_targets
+
 
 OpenARC = OpenARCDataset
 
@@ -1326,6 +1446,7 @@ OpenARC = OpenARCDataset
 import random
 from datasets import load_dataset
 from transformers import AutoTokenizer
+
 
 class DollyDataset(LMDataset):
     def __init__(
@@ -1335,67 +1456,88 @@ class DollyDataset(LMDataset):
         n_shot: int = 0,
         max_seq_len: int = 512,
         subset_name: str = None,
-        random_seed: int = 1
+        random_seed: int = 1,
     ):
         dset = load_dataset("databricks/databricks-dolly-15k")
         self.n_shot = n_shot
         self.subset_name = subset_name
-        
-        super().__init__(dset, tokenizer, add_space, max_seq_len = max_seq_len)
-        
+
+        super().__init__(dset, tokenizer, add_space, max_seq_len=max_seq_len)
+
         if subset_name is not None:
-            subset_data = dset['train'].filter(lambda example: example['category'] == subset_name).shuffle(seed=random_seed)
-            other_data = dset['train'].filter(lambda example: example['category'] != subset_name).shuffle(seed=random_seed)
-            
+            subset_data = (
+                dset["train"]
+                .filter(lambda example: example["category"] == subset_name)
+                .shuffle(seed=random_seed)
+            )
+            other_data = (
+                dset["train"]
+                .filter(lambda example: example["category"] != subset_name)
+                .shuffle(seed=random_seed)
+            )
+
             train_data = subset_data.select(range(1000))
-            
+
             remaining_subset = subset_data.select(range(1000, len(subset_data)))
             id_evaluation_data = remaining_subset.select(range(100))
-            
+
             print(f"{subset_name}: {len(subset_data)}")
-            
+
             ood_evaluation_data = []
-            unique_categories = set(other_data['category']) 
+            unique_categories = set(other_data["category"])
             for category in unique_categories:
-                category_data = other_data.filter(lambda example: example['category'] == category)
+                category_data = other_data.filter(
+                    lambda example: example["category"] == category
+                )
                 sampled_data = category_data.select(range(100))
-                ood_evaluation_data.extend(sampled_data) 
-                print(f"{category}: {len(category_data)}") 
+                ood_evaluation_data.extend(sampled_data)
+                print(f"{category}: {len(category_data)}")
 
             ood_evaluation_data = Dataset.from_list(ood_evaluation_data)
 
-            dset['train'] = train_data
-            dset['ood_evaluation'] = ood_evaluation_data
-            dset['id_evaluation'] = id_evaluation_data
+            dset["train"] = train_data
+            dset["ood_evaluation"] = ood_evaluation_data
+            dset["id_evaluation"] = id_evaluation_data
 
-    general_train_preamble = """{instruction}\n\nInput:\n{context}\n\nOutput:{response}"""
+    general_train_preamble = (
+        """{instruction}\n\nInput:\n{context}\n\nOutput:{response}"""
+    )
     general_eval_preamble = """{instruction}\n\nInput:\n{context}\n\nOutput:"""
-    
+
     def _select_few_shot_samples(self, dset, n):
         indices = list(range(len(dset)))
         random.shuffle(indices)
         selected_indices = indices[:n]
-        sampled_questions = [dset['question'][i] for i in selected_indices]
-        sampled_answers = [normalize_answer(dset['nq_answer'][i]) for i in selected_indices]
-        self.few_shot_samples = {'question': sampled_questions, 'answer': sampled_answers}
-    
+        sampled_questions = [dset["question"][i] for i in selected_indices]
+        sampled_answers = [
+            normalize_answer(dset["nq_answer"][i]) for i in selected_indices
+        ]
+        self.few_shot_samples = {
+            "question": sampled_questions,
+            "answer": sampled_answers,
+        }
+
     def _generate_n_shot_preamble(self):
         example_str = ""
         for i in range(self.n_shot):
             example_str += f"Example: Question: {self.few_shot_samples['question'][i]} Answer: {normalize_answer(self.few_shot_samples['nq_answer'][i])}. "
 
-        return example_str+"""Now, answer the question below. """
+        return example_str + """Now, answer the question below. """
 
     def _format_train_prompts(self, batch):
         prompts = []
         for e in batch:
             prompt = self.general_train_preamble
             prompts.append(
-                prompt.format(instruction=e["instruction"], context=e["context"], response=e["response"])
+                prompt.format(
+                    instruction=e["instruction"],
+                    context=e["context"],
+                    response=e["response"],
+                )
             )
-        
+
         return prompts
-    
+
     def _format_eval_prompts(self, batch):
         prompts = []
         for e in batch:
@@ -1403,20 +1545,21 @@ class DollyDataset(LMDataset):
             prompts.append(
                 prompt.format(instruction=e["instruction"], context=e["context"])
             )
-        
+
         return prompts
 
     def s2s_collate_fn(self, batch):
         prompts = self._format_eval_prompts(batch)
         prompts = self._tokenize_prompts_batch(prompts)
-        targets = self._tokenize_prompts_batch([e['response'] for e in batch])
+        targets = self._tokenize_prompts_batch([e["response"] for e in batch])
         return prompts, targets, None
-    
+
     def s2s_train_collate_fn_ori(self, batch):
         prompts = self._format_train_prompts(batch)
         tokenized_prompts = self._tokenize_prompts_batch(prompts)
-        tokenized_targets = self._tokenize_prompts_batch([e['response'] for e in batch])
-        
+        tokenized_targets = self._tokenize_prompts_batch([e["response"] for e in batch])
+
         return tokenized_prompts, tokenized_targets
+
 
 Dolly = DollyDataset
