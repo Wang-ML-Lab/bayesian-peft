@@ -3,16 +3,15 @@ This repo contains the code for our NeurIPS 2024 paper:<br>
 **BLoB: Bayesian Low-Rank Adaptation by Backpropagation for Large Language Models**<br>
 Yibin Wang\*, Haizhou Shi\*, Ligong Han, Dimitris Metaxas, Hao Wang<br>
 *Thirty-eighth Conference on Neural Information Processing Systems, 2024*<br>
-[[Paper](https://arxiv.org/abs/2406.11675)] [[OpenReview](https://openreview.net/forum?id=MaDykgj4Ru)] [Talk] [[Slides](https://nips.cc/media/neurips-2024/Slides/95507.pdf)] [[Poster](https://nips.cc/media/PosterPDFs/NeurIPS%202024/95507.png)]
+[[📄 Paper](https://arxiv.org/abs/2406.11675)] [[🌐 OpenReview](https://openreview.net/forum?id=MaDykgj4Ru)] [🎥 Talk] [[📑 Slides](https://nips.cc/media/neurips-2024/Slides/95507.pdf)] [[🖼️ Poster](https://nips.cc/media/PosterPDFs/NeurIPS%202024/95507.png)]
 
-## Table of Contents
-1. [Installation](#installation)
-2. [To Run the Code](#to-run-the-code)
-3. [To Use the Code](#to-use-the-code)
-4. [References](#references)
+## 📖 Table of Contents
+1. [⚙️ Installation](#installation)
+2. [🚀 To Run the Code](#to-run-the-code)
+3. [🔧 To Use the Code](#to-use-the-code)
+4. [📚 References](#references)
 
-
-## Installation
+## ⚙️ Installation
 To install the required conda environment, run:
 ```sh
 conda create --name <env>
@@ -20,7 +19,7 @@ conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvi
 pip install transformers datasets evaluate accelerate bitsandbytes jaxtyping torchmetrics setproctitle peft wandb nltk scikit-learn
 ```  
 
-## To Run the Code
+## 🚀 To Run the Code
 Before you run the code, there are a couple of settings you might want to modify: 
 - `wandb_entity`: at `utils/args.py` line 139, change to your own wandb account;
 
@@ -44,7 +43,7 @@ bash scripts/blob/blob-llama-all-single-gpu.sh
 
 > Note: The number of GPUs used for parallel training, the type of GPUs, and the model quantization settings can result in slight differences in the final performance.
 
-## To Use the Code
+## 🔧 To Use the Code
 
 ### Overview of the WrapperBase Class
 The `WrapperBase` class in `bayesian-peft/modelwrappers/wrapperbase.py` is designed as a flexible base class that integrates with various PEFT frameworks and datasets. Key features include:
@@ -85,13 +84,13 @@ def forward_logits(self, batch, sample=True, n_samples=1, **kwargs):
     return logits
 ```
 
-#### Step 3: Add Custom Training and Evaluation Logic
+#### Step 3: Add Custom Training and Evaluation Logic (Optional)
 You can customize the training logic by overriding the `fit` method, which manages the training loop. You can modify how gradients are computed, how the model is updated, and how metrics are logged. The `evaluate` method handles the evaluation of your model. You can customize it to calculate additional metrics, apply different evaluation procedures, or modify how results are logged. You can also customize the `fit_evaluate` and `prepare_for_fit_evaluate` method to further control the procedure of training and evaluating.
 
 For more information about the `WrapperBase` class, refer to the code and documentation provided in the project.
 
 
-## References
+## 📚 References
 [BLoB: Bayesian Low-Rank Adaptation by Backpropagation for Large Language Models](https://arxiv.org/abs/2406.11675)
 ```bib
 @inproceedings{BLoB,
