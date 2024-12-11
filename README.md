@@ -87,7 +87,7 @@ def forward_logits(self, batch, sample=True, n_samples=1, **kwargs):
 #### Step 3: Add Custom Training and Evaluation Logic (Optional)
 You can customize the training logic by overriding the `fit` method, which manages the training loop. You can modify how gradients are computed, how the model is updated, and how metrics are logged. The `evaluate` method handles the evaluation of your model. You can customize it to calculate additional metrics, apply different evaluation procedures, or modify how results are logged. You can also customize the `fit_evaluate` and `prepare_for_fit_evaluate` method to further control the procedure of training and evaluating.
 
-For more information about the `WrapperBase` class, refer to the code and documentation provided in the project.
+For more information about the `WrapperBase` class, refer to the code provided in the project.
 
 
 ## 📚 References
