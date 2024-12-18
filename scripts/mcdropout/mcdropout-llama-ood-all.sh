@@ -11,8 +11,8 @@ for sample in 10; do
             --opt adamw --warmup-ratio 0.06 \
             --max-seq-len 300 \
             --seed $seed \
-            --wandb-name $name --wandb-project "MLE-llama-all" \
-            --apply-classhead-lora --lora-r 8 --lora-alpha 16 --lora-dropout 0 \
+            --wandb-name $name --wandb-project "MCD-llama" \
+            --apply-classhead-lora --lora-r 8 --lora-alpha 16 --lora-dropout 0.1 \
             --log-path $name \
             --max-train-steps 5000 \
             --eval-per-steps 6000 \
@@ -31,13 +31,13 @@ for dataset in ARC-Challenge ARC-Easy MMLU-chem MMLU-phy; do
                 --opt adamw --warmup-ratio 0.06 \
                 --max-seq-len 300 \
                 --seed $seed \
-                --wandb-name $name --wandb-project "MLE-llama-all" \
-                --apply-classhead-lora --lora-r 8 --lora-alpha 16 --lora-dropout 0 \
+                --wandb-name $name --wandb-project "MCD-llama" \
+                --apply-classhead-lora --lora-r 8 --lora-alpha 16 --lora-dropout 0.1 \
                 --log-path $name \
                 --max-train-steps 0 \
                 --eval-per-steps 6000 \
                 --bayes-eval-n-samples $sample --bayes-eval-n-samples-final $sample \
-                --load-lora-path checkpoints/$modelwrapper/$model/$ori_dataset/
+                --load-lora-path checkpoints/$modelwrapper/$model/$ori_dataset/$modelwrapper-$ori_dataset-seed$seed 
         done
     done
 done

@@ -32,6 +32,6 @@ for dataset in ARC-Challenge ARC-Easy MMLU-chem MMLU-phy; do
             --log-path $name \
             --max-train-steps 0 \
             --eval-per-steps 6000 \
-            --load-lora-path checkpoints/$modelwrapper/$model/$ori_dataset/
+            --load-lora-path checkpoints/$modelwrapper/$model/$ori_dataset/$modelwrapper-$ori_dataset-seed$seed 
     done
 done
