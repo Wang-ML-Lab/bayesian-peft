@@ -93,10 +93,10 @@ For more information about the `WrapperBase` class, refer to the code provided i
 ## 📚 References
 [BLoB: Bayesian Low-Rank Adaptation by Backpropagation for Large Language Models](https://arxiv.org/abs/2406.11675)
 ```bib
-@inproceedings{BLoB,
+@article{wang2024blob,
   title={BLoB: Bayesian Low-Rank Adaptation by Backpropagation for Large Language Models},
   author={Wang, Yibin and Shi, Haizhou and Han, Ligong and Metaxas, Dimitris and Wang, Hao},
-  booktitle={Advances in Neural Information Processing Systems},
+  journal={arXiv preprint arXiv:2406.11675},
   year={2024}
 }
 ```
