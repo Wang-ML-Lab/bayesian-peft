@@ -24,7 +24,7 @@ for sample in 10; do
             --bayes-klreweighting \
             --bayes-eps $eps --bayes-beta $beta --bayes-gamma $gamma --bayes-kllr $kllr \
             --bayes-train-n-samples 1 --bayes-eval-n-samples $sample --bayes-eval-n-samples-final $sample \
-            --checkpoint --checkpoint-name $name
+            --checkpoint --checkpoint-name $name # save checkpoint
     done
 done
 
@@ -46,7 +46,7 @@ for dataset in ARC-Challenge ARC-Easy MMLU-chem MMLU-phy; do
                 --bayes-klreweighting \
                 --bayes-eps $eps --bayes-beta $beta --bayes-gamma $gamma --bayes-kllr $kllr --bayes-datasetrescaling \
                 --bayes-train-n-samples 1 --bayes-eval-n-samples $sample --bayes-eval-n-samples-final $sample \
-                --load-lora-path checkpoints/$modelwrapper/$model/$ori_dataset/$modelwrapper-$ori_dataset-eps$eps-kllr$kllr-beta$beta-gamma$gamma-seed$seed
+                --load-lora-path checkpoints/$modelwrapper/$model/$ori_dataset/$modelwrapper-$ori_dataset-eps$eps-kllr$kllr-beta$beta-gamma$gamma-seed$seed # load checkpoint
         done
     done
 done

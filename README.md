@@ -25,16 +25,17 @@ Before you run the code, there are a couple of settings you might want to modify
 
 We have provided the command to reproduce the results of in-distribution and out-of-distribution experiment in the `/scripts` folders. For Laplace-LoRA, we reproduced the results using the code from its official repository: [laplace-lora](https://github.com/adamxyang/laplace-lora).
 
-To run the in-distribution experiment, use the following command:
+To run the in-distribution experiment, use the following script:
 ```sh
 bash scripts/<method_name>/<method_name>-llama-all.sh
 bash scripts/<method_name>/<method_name>-roberta-all.sh
 ```
 
-To run the out-of-distribution experiment, use the following command:
+To run the out-of-distribution experiment, use the following script:
 ```sh
 bash scripts/<method_name>/<method_name>-llama-ood-all.sh
 ```
+In this script, we also demonstrate how to save and load your trained LoRA adapter. To save a LoRA checkpoint, use flag: ``--checkpoint --checkpoint-name $name``. To load a LoRA checkpoint, use flag: ``--load-lora-path checkpoints/$modelwrapper/<model_of_checkpoint>/<dataset_of_checkpoint>/<your_previous_checkpoint_name>``.
 
 We also provide a script for running in-distribution experiments for BLoB on a single GPU, as an alternative to parallel training with `accelerate`. Other scripts can be adjusted accordingly for single GPU usage:
 ```sh
@@ -42,6 +43,14 @@ bash scripts/blob/blob-llama-all-single-gpu.sh
 ```
 
 > Note: The number of GPUs used for parallel training, the type of GPUs, and the model quantization settings can result in slight differences in the final performance.
+
+To reproduce the results of BLoB (N=0), use the following command:
+```sh
+bash scripts/blob/blob-mean-llama-all-single-gpu.sh
+```
+
+> Note: BLoB (N=0) refers to directly using the mean of the weight distribution for prediction. To enable this mode, simply add the flag --bayes-inference-notsample to your script when running BLoB.
+
 
 ## 🔧 To Use the Code
 

@@ -422,7 +422,7 @@ class BLoB(WrapperBase):
                 output = self.base_model(**inputs)
                 logits = output.logits[:, -1, self.target_ids]
                 self.sample(self.base_model, True)
-                return logits
+                return logits.unsqueeze(1)
             else:
                 logits_list = []
                 for _ in range(n_samples):
@@ -435,7 +435,7 @@ class BLoB(WrapperBase):
                 self.sample(self.base_model, False)
                 res = self.base_model(**batch).logits
                 self.sample(self.base_model, True)
-                return res
+                return res.unsqueeze(1)
             else:
                 res = []
                 for _ in range(n_samples):
