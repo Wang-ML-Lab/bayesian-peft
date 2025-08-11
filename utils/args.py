@@ -167,6 +167,7 @@ def add_experiment_args(parser: ArgumentParser) -> None:
         default=None, 
         help="Path to a pre-trained LoRA checkpoint to load."
     )
+    parser.add_argument("--load-lora-huggingface-repo", type=str, default=None)
     parser.add_argument(
         "--log-path", 
         type=str, 
@@ -174,7 +175,7 @@ def add_experiment_args(parser: ArgumentParser) -> None:
         help="Directory to save training logs. Default is 'default'."
     )
     parser.add_argument(
-        "--testing_set", 
+        "--testing-set", 
         type=str, 
         default="val", 
         help="Dataset split to use for testing. Default is 'val'."
@@ -184,6 +185,9 @@ def add_experiment_args(parser: ArgumentParser) -> None:
         type=str, 
         default=None, 
         help="Optional path to an out-of-distribution dataset for evaluation."
+    )
+    parser.add_argument(
+        "--anchor-size", type=int, default=500, help="size of anchor set"
     )
 
     # LoRA-specific arguments

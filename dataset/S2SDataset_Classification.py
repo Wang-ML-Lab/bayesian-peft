@@ -119,6 +119,47 @@ class S2SDataset_Classification(DatasetBase):
             total_data_count += batch[1].size(0)
         self.num_samples = total_data_count
 
+        if self.args.testing_set == "train_train_val":
+            self.anchor_dataloader = self.dset.loader(
+                is_s2s=self.args.is_s2s,  # sequence to sequence model?
+                batch_size=self.args.batch_size,  # training batch size
+                split="train",  # training split name in dset
+                subset_size=self.args.anchor_size,  # train on subset? (-1 = no subset)
+            )
+            total_data_count = 0
+            for batch in self.anchor_dataloader:
+                total_data_count += batch[1].size(0)
+            self.num_samples = total_data_count
+        elif self.args.testing_set == "train_val_val":
+            self.anchor_dataloader = self.dset.loader(
+                is_s2s=self.args.is_s2s,  # sequence to sequence model?
+                batch_size=self.args.batch_size,  # training batch size
+                split="validation",  # training split name in dset
+                subset_size=self.args.anchor_size,  # train on subset? (-1 = no subset)
+            )
+            total_data_count = 0
+            for batch in self.anchor_dataloader:
+                total_data_count += batch[1].size(0)
+            self.num_samples = total_data_count
+        elif self.args.testing_set == "train_train_train":
+            self.anchor_dataloader = self.dset.loader(
+                is_s2s=self.args.is_s2s,  # sequence to sequence model?
+                batch_size=self.args.batch_size,  # training batch size
+                split="validation",  # training split name in dset
+                subset_size=self.args.anchor_size,  # train on subset? (-1 = no subset)
+            )
+            total_data_count = 0
+            for batch in self.anchor_dataloader:
+                total_data_count += batch[1].size(0)
+            self.num_samples = total_data_count
+            self.test_dataloader = self.dset.loader(
+                is_s2s=self.args.is_s2s,  # sequence to sequence model?
+                batch_size=self.args.batch_size,  # training batch size
+                split="train",  # training split name in dset
+                subset_size=self.args.anchor_size,  # train on subset? (-1 = no subset)
+            )
+            return
+
         self.test_dataloader = self.dset.loader(
             is_s2s=self.args.is_s2s,  # sequence to sequence model?
             batch_size=self.args.batch_size,  # training batch size
@@ -126,5 +167,4 @@ class S2SDataset_Classification(DatasetBase):
             subset_size=-1,  # train on subset? (-1 = no subset)
         )
 
-        if self.args.testing_set != "val":
-            raise NotImplementedError("Only validation set is supported for now.")
+

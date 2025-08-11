@@ -366,10 +366,11 @@ class WrapperBase(PeftModel):
         """
         self.wandb_logger = wandb_logger
         train_loader, test_loader = dataset.train_dataloader, dataset.test_dataloader
-        if self.args.testing_set == "train_val":
-            val_loader = dataset.val_dataloader
-            val_loader = self.accelerator.prepare(val_loader)
-            self.val_loader = val_loader
+        
+        if self.args.testing_set == 'train_train_val' or self.args.testing_set == 'train_val_val':
+            anchor_loader = dataset.anchor_dataloader
+            anchor_loader = self.accelerator.prepare(anchor_loader)
+            self.anchor_loader = anchor_loader
 
         if self.args.dataset_type == "mcdataset":
             self.tokenizer = dataset.tokenizer

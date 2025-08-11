@@ -58,7 +58,6 @@ def get_parser() -> ArgumentParser:
 @dataclass
 class BLoBConfig:
     bayes_eps: float = field(metadata={"help": "Bayes epsilon"})
-    bayes_gamma: float = field(metadata={"help": "Bayes gamma"})
     bayes_beta: float = field(metadata={"help": "Bayes beta"})
 
 
@@ -296,7 +295,6 @@ class BLoB(WrapperBase):
 
         self.blobconfig = BLoBConfig(
             bayes_eps=self.args.bayes_eps,
-            bayes_gamma=self.args.bayes_gamma,
             bayes_beta=self.args.bayes_beta,
         )
         self._modify_lora_layers(self.base_model)
@@ -366,7 +364,6 @@ class BLoB(WrapperBase):
     def _wrap_lora_layer(self, lora_layer):
         lora_layer.lora_A_rho = nn.ParameterDict({})
         lora_layer.bayes_eps = self.blobconfig.bayes_eps
-        lora_layer.bayes_gamma = self.blobconfig.bayes_gamma
         lora_layer.bayes_beta = self.blobconfig.bayes_beta
         lora_layer.blobsample = True
 
@@ -622,10 +619,6 @@ class BLoB(WrapperBase):
         """
         self.wandb_logger = wandb_logger
         train_loader, test_loader = dataset.train_dataloader, dataset.test_dataloader
-        if self.args.testing_set == "train_val":
-            val_loader = dataset.val_dataloader
-            val_loader = self.accelerator.prepare(val_loader)
-            self.val_loader = val_loader
 
         if self.args.dataset_type == "mcdataset":
             self.target_ids = dataset.target_ids.squeeze(-1)
