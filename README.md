@@ -1,9 +1,17 @@
 # Bayesian PEFT
-This repo contains the code for our NeurIPS 2024 paper:<br>
-**BLoB: Bayesian Low-Rank Adaptation by Backpropagation for Large Language Models**<br>
-Yibin Wang\*, Haizhou Shi\*, Ligong Han, Dimitris Metaxas, Hao Wang<br>
-*Thirty-eighth Conference on Neural Information Processing Systems, 2024*<br>
-[[📄 Paper](https://arxiv.org/abs/2406.11675)] [[🌐 OpenReview](https://openreview.net/forum?id=MaDykgj4Ru)] [🎥 Talk] [[📑 Slides](https://nips.cc/media/neurips-2024/Slides/95507.pdf)] [[🖼️ Poster](https://nips.cc/media/PosterPDFs/NeurIPS%202024/95507.png)]
+This repo contains the code for the following works:
+
+- **BLoB: Bayesian Low-Rank Adaptation by Backpropagation for Large Language Models**  
+  Yibin Wang\*, Haizhou Shi\*, Ligong Han, Dimitris Metaxas, Hao Wang  
+  *Thirty-eighth Conference on Neural Information Processing Systems, 2024*  
+  [[📄 Paper](https://arxiv.org/abs/2406.11675)] [[🌐 OpenReview](https://openreview.net/forum?id=MaDykgj4Ru)] [[📑 Slides](https://nips.cc/media/neurips-2024/Slides/95507.pdf)] [[🖼️ Poster](https://nips.cc/media/PosterPDFs/NeurIPS%202024/95507.png)]
+
+- **Training-Free Bayesianization for Low-Rank Adapters of Large Language Models**  
+  Haizhou Shi\*, Yibin Wang\*, Ligong Han, Huan Zhang, Hao Wang  
+  *ICLR Workshop: Quantify Uncertainty and Hallucination in Foundation Models, 2025*  
+  [[📄 Paper](https://arxiv.org/abs/2412.05723)] [[🌐 OpenReview](https://openreview.net/forum?id=KlTOctRctg)]
+
+
 
 ## 📖 Table of Contents
 1. [⚙️ Installation](#installation)
@@ -48,6 +56,20 @@ We also provide a script for running in-distribution experiments for BLoB on a s
 bash scripts/blob/blob-llama-all-single-gpu.sh
 ```
 
+### Running TFB (Training-Free Bayesianization for Low-Rank Adapters of Large Language Models)
+
+Run the following script to evaluate **TFB** on LoRA weights obtained from ``<method_name>`` (BLoB, MLE, MAP) training:
+```sh
+bash scripts/tfblora/<method_name>.sh
+```
+
+We provide pre-trained BLoB, MLE, and MAP LoRA weights on various datasets at:
+[FlyLee/bayesian-peft](https://huggingface.co/FlyLee/bayesian-peft/tree/main)
+These are loaded by default in the scripts, but you can load any local LoRA weights by specifying:
+```sh
+--load-lora-huggingface-repo None \
+--load-lora-path <path_to_your_lora_weights>
+```
 > Note: The number of GPUs used for parallel training, the type of GPUs, and the model quantization settings can result in slight differences in the final performance.
 
 
